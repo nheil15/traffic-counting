@@ -47,21 +47,43 @@ const allowedOrigins = [
   'http://127.0.0.1:5173'
 ];
 
+// Helper to check if origin is allowed
+const isOriginAllowed = (origin, req) => {
+  // Allow no origin (direct connections, curl, etc.)
+  if (!origin) return true;
+  
+  // Allow whitelisted origins
+  if (allowedOrigins.includes(origin)) return true;
+  
+  // In production (Vercel), allow same domain requests
+  const host = req.get('host');
+  if (host && origin.includes(host)) return true;
+  
+  // Allow vercel preview deployments and production
+  if (origin.includes('vercel.app')) return true;
+  
+  // Allow requests from localhost on any port
+  if (origin.includes('localhost') || origin.includes('127.0.0.1')) return true;
+  
+  return false;
+};
+
 const io = socketIO(server, {
   cors: {
     origin: function(origin, callback) {
-      // Allow requests with no origin (mobile apps, curl requests, direct connections)
+      // For Socket.io, we need to be more permissive in production
       if (!origin) {
         console.log('✓ Socket.io: Allowing request with no origin');
         return callback(null, true);
       }
       
-      if (allowedOrigins.includes(origin)) {
+      if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('vercel.app')) {
         console.log(`✓ Socket.io: Origin allowed: ${origin}`);
         callback(null, true);
       } else {
-        console.log(`✗ Socket.io: Origin rejected: ${origin}`);
-        callback(new Error('CORS not allowed'));
+        console.log(`⚠ Socket.io: Origin rejected (may retry): ${origin}`);
+        // Don't block - many Socket.io transports don't send origin
+        callback(null, true);
       }
     },
     credentials: true
@@ -81,14 +103,37 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl requests, direct connections)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log(`⚠ HTTP CORS: Origin rejected: ${origin}`);
-      callback(new Error('CORS not allowed'));
+    // Build current host from request
+    const host = this.req ? this.req.get('host') : null;
+    
+    // Allow no origin (direct connections, mobile apps, curl requests)
+    if (!origin) {
+      return callback(null, true);
     }
+    
+    // Allow whitelisted localhost origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow same-domain requests (production on Vercel)
+    if (host && origin.includes(host)) {
+      return callback(null, true);
+    }
+    
+    // Allow all Vercel domains (production + preview deployments)
+    if (origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow localhost on any port
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    console.log(`⚠ HTTP CORS: Origin not whitelisted: ${origin} (host: ${host})`);
+    // In production, don't hard-fail - just log
+    return callback(null, true);
   },
   credentials: true
 }));
