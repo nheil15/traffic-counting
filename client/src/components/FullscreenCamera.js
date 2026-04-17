@@ -15,8 +15,8 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
   const { modelLoaded, error: modelError, detectObjects } = useTensorFlowDetection();
 
   // Request camera permission and access real camera
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     console.log('🎬 [FullscreenCamera] Permission useEffect triggered');
     console.log('🎬 [FullscreenCamera] isRunning:', isRunning);
     console.log('🎬 [FullscreenCamera] permissionStatus:', permissionStatus);
@@ -115,6 +115,7 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
   }, [isRunning]);
 
   // Real-time detection loop using TensorFlow.js
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isRunning || !modelLoaded || !videoRef.current) return;
 
