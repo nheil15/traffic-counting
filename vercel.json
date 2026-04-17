@@ -2,15 +2,6 @@
   "version": 2,
   "buildCommand": "npm run build",
   "framework": "express",
-  "functions": {
-    "server/index.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
-  "environment": {
-    "NODE_ENV": "production"
-  },
   "installCommand": "npm install && cd client && npm install && cd ..",
   "outputDirectory": "client/build"
 }
