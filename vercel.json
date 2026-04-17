@@ -1,9 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm install && cd client && npm install && cd .. && npm run build",
-  "outputDirectory": ".",
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "buildCommand": "npm install && cd client && npm install && npm run build && cd ..",
+  "framework": "express",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install"
 }
 

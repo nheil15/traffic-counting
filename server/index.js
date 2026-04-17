@@ -71,7 +71,11 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve static files from React build
 const clientBuild = path.join(__dirname, '../client/build');
-app.use(express.static(clientBuild));
+console.log(`📁 Serving static files from: ${clientBuild}`);
+app.use(express.static(clientBuild, { 
+  maxAge: '1h',
+  etag: false
+}));
 
 // API Routes
 app.use('/api/health', healthRouter);
@@ -109,11 +113,23 @@ io.on('connection', (socket) => {
   });
 });
 
-// React catch-all route
+// React catch-all route (SPA routing)
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(clientBuild, 'index.html'));
+  // Don't serve HTML for API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Not found' });
   }
+  
+  const indexPath = path.join(clientBuild, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error(`Failed to send ${indexPath}:`, err.message);
+      res.status(404).json({ 
+        error: 'Not found',
+        debug: `Looking for: ${indexPath}`
+      });
+    }
+  });
 });
 
 // Error handling middleware
