@@ -367,21 +367,14 @@ function FullscreenCamera({ isRunning, onClose }) {
         </div>
       </div>
 
-      {/* Status indicator - Bottom Right */}
-      <div className="status-indicator">
-        <div className={`status-dot ${permissionStatus === 'granted' ? 'running' : 'waiting'}`}></div>
-        <span>{permissionStatus === 'granted' ? 'LIVE' : 'REQUESTING'}</span>
-      </div>
-
-      {/* Recording button - Bottom Right below status */}
+      {/* Top Right Control Panel - Record Button Only */}
       {permissionStatus === 'granted' && (
         <button 
           onClick={isRecording ? stopRecording : startRecording}
-          className={`record-button ${isRecording ? 'recording' : ''}`}
+          className={`record-button-top-right ${isRecording ? 'recording' : ''}`}
           title={isRecording ? 'Stop recording' : 'Start recording'}
         >
           <span className={`record-dot ${isRecording ? 'active' : ''}`}></span>
-          {isRecording ? 'STOP REC' : 'REC'}
         </button>
       )}
 

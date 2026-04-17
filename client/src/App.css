@@ -59,6 +59,16 @@ body {
   }
 }
 
+@media (max-width: 1024px) {
+  .app-container {
+    padding: 15px;
+  }
+
+  .content-grid {
+    gap: 15px;
+  }
+}
+
 @media (max-width: 768px) {
   .app-header h1 {
     font-size: 1.8rem;
@@ -73,6 +83,49 @@ body {
   }
 
   .content-grid {
-    gap: 15px;
+    gap: 10px;
+  }
+
+  .video-section,
+  .controls-section {
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-header p {
+    font-size: 0.9rem;
+  }
+
+  .app-container {
+    padding: 8px;
+  }
+
+  .content-grid {
+    gap: 8px;
+  }
+
+  .video-section,
+  .controls-section {
+    border-radius: 6px;
+  }
+
+  .controls-section {
+    padding: 15px;
+  }
+}
+
+/* Landscape mode on small screens */
+@media (max-height: 600px) and (orientation: landscape) {
+  .app-container {
+    padding: 5px;
+  }
+
+  .content-grid {
+    gap: 5px;
   }
 }

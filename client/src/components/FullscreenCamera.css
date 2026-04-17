@@ -85,20 +85,9 @@
   text-align: right;
 }
 
-/* Status indicator - Bottom Right */
+/* Status indicator - Hidden */
 .status-indicator {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 2px solid rgba(74, 222, 128, 0.6);
-  backdrop-filter: blur(8px);
+  display: none;
 }
 
 .status-dot {
@@ -133,6 +122,75 @@
   50% {
     opacity: 0.5;
   }
+}
+
+/* Top Right Record Button Only */
+.record-button-top-right {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid rgba(102, 126, 234, 0.6);
+  background: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  padding: 0;
+}
+
+.record-button-top-right:hover {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.8);
+  transform: scale(1.1);
+}
+
+.record-button-top-right.recording {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+.record-button-top-right.recording:hover {
+  background: rgba(239, 68, 68, 0.4);
+  transform: scale(1.1);
+}
+
+.record-button-top-right .record-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: #6b7280;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.record-button-top-right .record-dot.active {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  animation: record-pulse 1s infinite;
+}
+
+/* Remove old complex panel styles */
+.top-right-controls {
+  display: none;
+}
+
+.control-item {
+  display: none;
+}
+
+.record-control-btn {
+  display: none;
+}
+
+.record-indicator {
+  display: none;
 }
 
 /* Error message */
@@ -249,6 +307,18 @@
     font-size: 8px;
   }
 
+  .record-button-top-right {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .record-button-top-right .record-dot {
+    width: 14px;
+    height: 14px;
+  }
+
   .camera-error {
     bottom: 10px;
     left: 50%;
@@ -287,20 +357,22 @@
     top: 8px;
     left: 8px;
     padding: 6px 8px;
-    min-width: 90px;
+    min-width: 85px;
     border-radius: 5px;
   }
 
   .count-label {
     font-size: 7px;
+    letter-spacing: 0.1px;
   }
 
   .count-number {
     font-size: 20px;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
   }
 
   .vehicle-breakdown {
-    gap: 3px;
+    gap: 2px;
     padding-top: 4px;
   }
 
@@ -309,11 +381,20 @@
     gap: 1px;
   }
 
+  .type-label {
+    min-width: 30px;
+  }
+
+  .type-count {
+    min-width: 12px;
+  }
+
   .status-indicator {
     bottom: 8px;
     right: 8px;
     padding: 5px 8px;
     border-radius: 5px;
+    gap: 4px;
   }
 
   .status-dot {
@@ -323,6 +404,21 @@
 
   .status-indicator span {
     font-size: 7px;
+    letter-spacing: 0.2px;
+  }
+
+  .record-button-top-right {
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(102, 126, 234, 0.6);
+    border-radius: 50%;
+  }
+
+  .record-button-top-right .record-dot {
+    width: 12px;
+    height: 12px;
   }
 
   .camera-error {
@@ -332,8 +428,13 @@
     max-width: calc(100% - 16px);
   }
 
+  .permission-message {
+    padding: 15px;
+  }
+
   .permission-content {
     padding: 25px 15px;
+    border-radius: 8px;
   }
 
   .permission-content h2 {
@@ -344,13 +445,255 @@
   .permission-content p {
     font-size: 0.85rem;
     margin-bottom: 10px;
+    line-height: 1.5;
   }
 
   .spinner-small {
     width: 30px;
     height: 30px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid #4ade80;
     margin: 15px auto;
   }
+}
+
+/* Very Small Mobile Devices (< 360px) */
+@media (max-width: 360px) {
+  .count-overlay {
+    top: 6px;
+    left: 6px;
+    padding: 5px 6px;
+    min-width: 75px;
+    border-radius: 4px;
+    border: 1px solid rgba(102, 126, 234, 0.6);
+  }
+
+  .count-label {
+    font-size: 6px;
+    letter-spacing: 0.1px;
+    margin-bottom: 2px;
+  }
+
+  .count-number {
+    font-size: 18px;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  }
+
+  .vehicle-breakdown {
+    gap: 1px;
+    padding-top: 3px;
+  }
+
+  .breakdown-row {
+    font-size: 7px;
+    gap: 0.5px;
+  }
+
+  .status-indicator {
+    bottom: 6px;
+    right: 6px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    gap: 3px;
+    font-size: 6px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .record-button-top-right {
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(102, 126, 234, 0.6);
+    border-radius: 50%;
+  }
+
+  .record-button-top-right .record-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .camera-error {
+    bottom: 6px;
+    font-size: 9px;
+    padding: 5px 8px;
+  }
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .fullscreen-camera {
+    height: 100vh;
+  }
+
+  .count-overlay {
+    top: 6px;
+    left: 6px;
+    padding: 5px 8px;
+    min-width: 90px;
+  }
+
+  .count-label {
+    font-size: 7px;
+  }
+
+  .count-number {
+    font-size: 18px;
+  }
+
+  .breakdown-row {
+    font-size: 8px;
+  }
+
+  .status-indicator {
+    bottom: 6px;
+    right: 6px;
+    padding: 4px 8px;
+    font-size: 7px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .top-right-controls {
+    top: 6px;
+    right: 6px;
+    padding: 8px;
+    gap: 6px;
+    min-width: 85px;
+    border-radius: 5px;
+  }
+
+  .control-item {
+    padding: 4px 6px;
+    gap: 5px;
+  }
+
+  .control-item span {
+    font-size: 8px;
+  }
+
+  .live-status .status-dot,
+  .record-status .record-dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .record-control-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .record-indicator {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* Small Landscape (< 768px width and landscape) */
+@media (max-width: 480px) and (orientation: landscape) {
+  .count-overlay {
+    top: 4px;
+    left: 4px;
+    padding: 4px 6px;
+    min-width: 80px;
+    border-radius: 4px;
+  }
+
+  .count-label {
+    font-size: 6px;
+    margin-bottom: 1px;
+  }
+
+  .count-number {
+    font-size: 16px;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  }
+
+  .vehicle-breakdown {
+    gap: 1px;
+    padding-top: 2px;
+  }
+
+  .breakdown-row {
+    font-size: 7px;
+    gap: 0.5px;
+  }
+
+  .status-indicator {
+    bottom: 4px;
+    right: 4px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    gap: 2px;
+  }
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .status-indicator span {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+
+  .record-button-top-right {
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(102, 126, 234, 0.6);
+    border-radius: 50%;
+  }
+
+  .record-button-top-right .record-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .camera-error {
+    bottom: 4px;
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+
+  .permission-content {
+    padding: 20px 12px;
+    border-radius: 6px;
+  }
+
+  .permission-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .permission-content p {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+  }
+}
+
+/* Status indicator - Bottom Right */
+.status-indicator {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid rgba(74, 222, 128, 0.6);
+  backdrop-filter: blur(8px);
 }
 
 .status-dot {
