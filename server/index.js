@@ -164,12 +164,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📺 Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Start server only in non-serverless environments
+if (process.env.VERCEL === undefined) {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📺 Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
 
-module.exports = { app, io };
+// Export for both serverless (default export) and local (named exports)
+module.exports = app;
+module.exports.default = app;
+module.exports.io = io;
