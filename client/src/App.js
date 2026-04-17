@@ -113,11 +113,11 @@ function App() {
   }, [fetchStatus]);
 
   // Auto-start camera on load (one time only)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     console.log('🔄 [App] Auto-start effect triggered, calling handleStart()...');
     console.log('🔄 [App] Current isRunning before handleStart():', isRunning);
     handleStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleStart]);
 
   return (

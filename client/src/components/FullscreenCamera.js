@@ -112,6 +112,7 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
         });
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning]);
 
   // Real-time detection loop using TensorFlow.js
