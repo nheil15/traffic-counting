@@ -1,30 +1,38 @@
 {
   "version": 2,
+  "buildCommand": "npm install && cd client && npm install && npm run build && cd .. && ls -la client/build/ || echo 'WARNING: client/build not found'",
   "builds": [
     {
       "src": "package.json",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["client/build/**", "server/**", ".env*"]
+        "includeFiles": [
+          "client/build/**",
+          "server/**",
+          "public/**",
+          ".env*"
+        ],
+        "excludeFiles": [
+          "client/src/**",
+          "client/node_modules/**",
+          "node_modules/.cache/**"
+        ]
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/index.js"
+      "dest": "/"
     },
     {
       "src": "/socket.io(.*)",
-      "dest": "/server/index.js"
+      "dest": "/"
     },
     {
       "src": "/(.*)",
-      "dest": "/server/index.js"
+      "dest": "/"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
 

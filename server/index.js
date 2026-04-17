@@ -69,13 +69,36 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+const fs = require('fs');
+
 // Serve static files from React build
-const clientBuild = path.join(__dirname, '../client/build');
-console.log(`📁 Serving static files from: ${clientBuild}`);
-app.use(express.static(clientBuild, { 
-  maxAge: '1h',
-  etag: false
-}));
+let clientBuild;
+try {
+  // Try relative path first (local development)
+  clientBuild = path.join(__dirname, '../client/build');
+  if (!fs.existsSync(clientBuild)) {
+    // Fallback for Vercel where build might be in same directory
+    clientBuild = path.join(__dirname, './client/build');
+  }
+  if (!fs.existsSync(clientBuild)) {
+    // Last resort - try direct path
+    clientBuild = path.resolve(process.cwd(), 'client/build');
+  }
+  console.log(`✅ Static files directory: ${clientBuild} (exists: ${fs.existsSync(clientBuild)})`);
+} catch (err) {
+  console.log(`⚠️  Error resolving client build directory: ${err.message}`);
+  clientBuild = path.join(__dirname, '../client/build');
+}
+
+if (fs.existsSync(clientBuild)) {
+  app.use(express.static(clientBuild, { 
+    maxAge: '1h',
+    etag: false
+  }));
+  console.log(`📁 Serving React app from: ${clientBuild}`);
+} else {
+  console.warn(`⚠️  WARNING: Client build directory not found at ${clientBuild}`);
+}
 
 // API Routes
 app.use('/api/health', healthRouter);
