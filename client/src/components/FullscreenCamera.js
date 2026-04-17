@@ -24,6 +24,8 @@ function FullscreenCamera({ isRunning, onClose }) {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
+  const recordingCanvasRef = useRef(null);
+  const recordingCtxRef = useRef(null);
 
   // Request camera permission and access real camera
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -217,11 +219,20 @@ function FullscreenCamera({ isRunning, onClose }) {
 
   // Recording functionality
   const startRecording = () => {
-    if (!overlayCanvasRef.current) return;
+    if (!videoRef.current || !overlayCanvasRef.current) return;
     
     recordedChunksRef.current = [];
-    const canvas = overlayCanvasRef.current;
-    const stream = canvas.captureStream(30); // 30 FPS
+    
+    // Create a hidden canvas for recording that combines video + overlay
+    const recordingCanvas = document.createElement('canvas');
+    recordingCanvas.width = videoRef.current.videoWidth || 1920;
+    recordingCanvas.height = videoRef.current.videoHeight || 1080;
+    const recordingCtx = recordingCanvas.getContext('2d');
+    
+    recordingCanvasRef.current = recordingCanvas;
+    recordingCtxRef.current = recordingCtx;
+    
+    const stream = recordingCanvas.captureStream(30); // 30 FPS
     
     const mediaRecorder = new MediaRecorder(stream, {
       mimeType: 'video/webm;codecs=vp9'
@@ -261,6 +272,37 @@ function FullscreenCamera({ isRunning, onClose }) {
       setIsRecording(false);
     }
   };
+
+  // Draw to recording canvas (composite of video + overlay)
+  useEffect(() => {
+    if (!isRecording || !recordingCanvasRef.current || !recordingCtxRef.current || !videoRef.current || !overlayCanvasRef.current) return;
+
+    const recordingCtx = recordingCtxRef.current;
+    const recordingCanvas = recordingCanvasRef.current;
+    const video = videoRef.current;
+    const overlayCanvas = overlayCanvasRef.current;
+
+    const drawRecordingFrame = () => {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        // Draw video frame
+        recordingCanvas.width = video.videoWidth;
+        recordingCanvas.height = video.videoHeight;
+        recordingCtx.drawImage(video, 0, 0, recordingCanvas.width, recordingCanvas.height);
+        
+        // Draw overlay on top
+        recordingCtx.drawImage(overlayCanvas, 0, 0, recordingCanvas.width, recordingCanvas.height);
+      }
+      if (isRecording) {
+        requestAnimationFrame(drawRecordingFrame);
+      }
+    };
+
+    drawRecordingFrame();
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, [isRecording]);
 
   return (
     <div className="fullscreen-camera">
