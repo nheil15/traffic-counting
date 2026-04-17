@@ -18,6 +18,7 @@ class VehicleTracker {
       truck: 0,
       bus: 0,
       motorcycle: 0,
+      bicycle: 0,
       tricycle: 0
     };
     this.countedIds = new Set();

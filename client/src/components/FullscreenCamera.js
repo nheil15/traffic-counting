@@ -15,7 +15,7 @@ function FullscreenCamera({ isRunning, onClose }) {
   const { modelLoaded, error: modelError, detectObjects } = useTensorFlowDetection();
   
   // Client-side vehicle tracking
-  const { processDetections, resetCounts, counts, trackedVehicles } = useVehicleTracking();
+  const { processDetections, counts, trackedVehicles } = useVehicleTracking();
 
   // Canvas overlay for drawing bounding boxes
   const overlayCanvasRef = useRef(null);
@@ -113,6 +113,7 @@ function FullscreenCamera({ isRunning, onClose }) {
         clearInterval(detectionIntervalRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, modelLoaded, detectObjects]);
 
   // Draw video frame to canvas
@@ -150,27 +151,32 @@ function FullscreenCamera({ isRunning, onClose }) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        // Clear canvas
+        // Clear canvas - fresh draw every frame
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw bounding boxes for tracked vehicles
+        // Color palette for different object types
+        const colors = {
+          car: '#00FF00',
+          truck: '#FF6600',
+          bus: '#FF00FF',
+          motorcycle: '#00FFFF',
+          bicycle: '#FFAA00',
+          tricycle: '#FFFF00',
+          person: '#FF0099',
+          dog: '#00FFAA',
+          cat: '#AA00FF'
+        };
+
+        // Draw one box per tracked object (follows the object)
         Object.entries(trackedVehicles).forEach(([vehicleId, vehicle]) => {
+          if (!vehicle || !vehicle.bbox) return; // Skip if no bbox
+          
           const [x, y, w, h] = vehicle.bbox;
           
-          // Choose color based on vehicle type
-          const colors = {
-            car: '#00FF00',
-            truck: '#FF6600',
-            bus: '#FF00FF',
-            motorcycle: '#00FFFF',
-            tricycle: '#FFFF00',
-            person: '#FF0099',      // Non-vehicle objects (people)
-            dog: '#00FFAA',
-            cat: '#AA00FF',
-            bicycle: '#FFAA00'
-          };
-
-          const boxColor = colors[vehicle.class] || '#888888'; // Default gray for unknown objects
+          // Validate coordinates
+          if (x < 0 || y < 0 || w <= 0 || h <= 0) return;
+          
+          const boxColor = colors[vehicle.class] || '#888888';
           const lineWidth = 3;
 
           // Draw bounding box
@@ -178,12 +184,14 @@ function FullscreenCamera({ isRunning, onClose }) {
           ctx.lineWidth = lineWidth;
           ctx.strokeRect(x, y, w, h);
 
-          // Draw vehicle ID and class label
-          const label = `ID:${vehicleId} ${vehicle.class.toUpperCase()}`;
+          // Draw class label
+          const label = vehicle.class.toUpperCase();
           const fontSize = 14;
           ctx.font = `bold ${fontSize}px Arial`;
           ctx.fillStyle = boxColor;
-          ctx.fillRect(x, y - fontSize - 8, ctx.measureText(label).width + 10, fontSize + 8);
+          
+          const labelWidth = ctx.measureText(label).width;
+          ctx.fillRect(x, y - fontSize - 8, labelWidth + 10, fontSize + 8);
           
           ctx.fillStyle = '#000000';
           ctx.fillText(label, x + 5, y - 5);
@@ -250,11 +258,15 @@ function FullscreenCamera({ isRunning, onClose }) {
               <span className="type-count">{counts.bus}</span>
             </div>
             <div className="breakdown-row">
-              <span className="type-label">Bikes:</span>
+              <span className="type-label">Motor:</span>
               <span className="type-count">{counts.motorcycle}</span>
             </div>
             <div className="breakdown-row">
-              <span className="type-label">Trike:</span>
+              <span className="type-label">Bicycle:</span>
+              <span className="type-count">{counts.bicycle}</span>
+            </div>
+            <div className="breakdown-row">
+              <span className="type-label">Tricycle:</span>
               <span className="type-count">{counts.tricycle}</span>
             </div>
           </div>

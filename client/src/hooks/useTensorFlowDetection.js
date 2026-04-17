@@ -84,7 +84,7 @@ export const useTensorFlowDetection = () => {
         .filter(pred => pred.score > 0.4) // Keep confidence threshold
         .map(pred => ({
           bbox: pred.bbox, // [x, y, width, height]
-          class: pred.class === 'bicycle' ? 'tricycle' : pred.class,
+          class: pred.class,
           confidence: pred.score,
           isVehicle: vehicleClasses.includes(pred.class) // Mark if it's a vehicle for counting
         }));

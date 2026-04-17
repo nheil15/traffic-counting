@@ -1,21 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm install && cd client && npm install && npm run build && cd .. && ls -la client/build/",
+  "buildCommand": "cd client && npm install && CI=false npm run build",
   "builds": [
     {
       "src": "server/index.js",
       "use": "@vercel/node",
       "config": {
+        "maxDuration": 60,
         "includeFiles": [
           "client/build/**",
-          "server/**",
-          "package.json",
-          ".env*"
-        ],
-        "excludeFiles": [
-          "client/src/**",
-          "client/node_modules/**",
-          "node_modules/.cache/**"
+          "package.json"
         ]
       }
     }
@@ -23,7 +17,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server/index.js"
+      "dest": "server/index.js"
     }
   ]
 }

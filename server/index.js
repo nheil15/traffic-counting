@@ -127,22 +127,49 @@ const fs = require('fs');
 // Serve static files from React build
 let clientBuild;
 try {
-  // Try relative path first (local development)
-  clientBuild = path.join(__dirname, '../client/build');
-  if (!fs.existsSync(clientBuild)) {
-    // Fallback for Vercel where build might be in same directory
-    clientBuild = path.join(__dirname, './client/build');
+  // List of possible paths where client/build might be on Vercel
+  const possiblePaths = [
+    // Local development
+    path.join(__dirname, '../client/build'),
+    path.join(__dirname, './client/build'),
+    path.resolve(process.cwd(), 'client/build'),
+    // Vercel serverless function paths
+    path.join('/var/task', 'client/build'),
+    path.join('/var/task', '../..', 'client/build'),
+    '/vercel/output/static',
+  ];
+  
+  console.log(`📍 Current __dirname: ${__dirname}`);
+  console.log(`📍 Current cwd: ${process.cwd()}`);
+  
+  clientBuild = null;
+  for (const tryPath of possiblePaths) {
+    try {
+      if (fs.existsSync(tryPath)) {
+        const indexPath = path.join(tryPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+          clientBuild = tryPath;
+          console.log(`✅ Found client build at: ${clientBuild}`);
+          break;
+        }
+      }
+    } catch (e) {
+      // Continue to next path
+    }
   }
-  if (!fs.existsSync(clientBuild)) {
-    // Last resort - try direct path
-    clientBuild = path.resolve(process.cwd(), 'client/build');
+  
+  if (!clientBuild) {
+    console.warn(`⚠️  Client build not found in any of these locations:`);
+    possiblePaths.forEach(p => console.warn(`  - ${p} (exists: ${fs.existsSync(p)})`));
+    // Default to first option for fallback
+    clientBuild = possiblePaths[0];
   }
-  console.log(`✅ Static files directory: ${clientBuild} (exists: ${fs.existsSync(clientBuild)})`);
 } catch (err) {
   console.log(`⚠️  Error resolving client build directory: ${err.message}`);
   clientBuild = path.join(__dirname, '../client/build');
 }
 
+// Serve static files with proper error handling
 if (fs.existsSync(clientBuild)) {
   app.use(express.static(clientBuild, { 
     maxAge: '1h',
@@ -151,6 +178,7 @@ if (fs.existsSync(clientBuild)) {
   console.log(`📁 Serving React app from: ${clientBuild}`);
 } else {
   console.warn(`⚠️  WARNING: Client build directory not found at ${clientBuild}`);
+  console.warn(`   Static files will not be served. React app will return 404.`);
 }
 
 // API Routes
@@ -199,12 +227,24 @@ app.get('*', (req, res) => {
   }
   
   const indexPath = path.join(clientBuild, 'index.html');
+  
+  // Check if the file exists before trying to send it
+  if (!fs.existsSync(indexPath)) {
+    console.error(`React index.html not found at: ${indexPath}`);
+    return res.status(404).json({ 
+      error: 'React app not deployed',
+      debug: `Looking for: ${indexPath}`,
+      buildPath: clientBuild,
+      buildExists: fs.existsSync(clientBuild)
+    });
+  }
+  
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error(`Failed to send ${indexPath}:`, err.message);
-      res.status(404).json({ 
-        error: 'Not found',
-        debug: `Looking for: ${indexPath}`
+      res.status(500).json({ 
+        error: 'Failed to serve React app',
+        debug: err.message
       });
     }
   });

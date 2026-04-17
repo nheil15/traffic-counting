@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import FullscreenCamera from './components/FullscreenCamera';
 import './App.css';
 
 function App() {
-  const [isRunning, setIsRunning] = useState(true);
+  const [isRunning] = useState(true);
 
   return (
     <div className="app">
