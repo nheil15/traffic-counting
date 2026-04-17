@@ -50,7 +50,19 @@ const io = socketIO(server, {
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://storage.googleapis.com", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'", "https://storage.googleapis.com", "wss:", "ws:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"]
+    }
+  }
+}));
 app.use(compression());
 app.use(morgan('dev'));
 app.use(cors({
