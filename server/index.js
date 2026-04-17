@@ -18,6 +18,25 @@ const configRouter = require('./routes/config');
 const app = express();
 const server = http.createServer(app);
 
+// ⚠️ CRITICAL: Set CSP headers FIRST, before all other middleware
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://cdn.jsdelivr.net; " +
+    "connect-src 'self' https://storage.googleapis.com wss: ws:; " +
+    "img-src 'self' data: https:; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "font-src 'self' data:; " +
+    "worker-src 'self' blob:; " +
+    "object-src 'none'; " +
+    "frame-ancestors 'none'"
+  );
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+
 // Determine allowed origins (support localhost:3000, :3001, :5173, etc.)
 const allowedOrigins = [
   'http://localhost:3000',
@@ -51,7 +70,7 @@ const io = socketIO(server, {
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: false,  // Disabled - using _headers file instead
+  contentSecurityPolicy: false,  // Disabled - set manually above as FIRST middleware
   hsts: true,
   noSniff: true,
   xssFilter: true,
