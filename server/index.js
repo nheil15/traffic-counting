@@ -51,24 +51,12 @@ const io = socketIO(server, {
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: false  // Disable default CSP - we'll set it manually
+  contentSecurityPolicy: false,  // Disabled - using _headers file instead
+  hsts: true,
+  noSniff: true,
+  xssFilter: true,
+  frameguard: { action: 'deny' }
 }));
-
-// Set custom CSP headers BEFORE other middleware
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://cdn.jsdelivr.net; " +
-    "connect-src 'self' https://storage.googleapis.com wss: ws:; " +
-    "img-src 'self' data: https:; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "font-src 'self' data:; " +
-    "object-src 'none'; " +
-    "frame-ancestors 'none'"
-  );
-  next();
-});
 
 app.use(compression());
 app.use(morgan('dev'));
