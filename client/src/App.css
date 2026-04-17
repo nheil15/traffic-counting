@@ -12,6 +12,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: black;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app {
@@ -90,6 +91,10 @@ body {
   .controls-section {
     border-radius: 8px;
   }
+
+  body {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -117,6 +122,10 @@ body {
   .controls-section {
     padding: 15px;
   }
+
+  body {
+    font-size: 14px;
+  }
 }
 
 /* Landscape mode on small screens */
@@ -128,4 +137,50 @@ body {
   .content-grid {
     gap: 5px;
   }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+  .app-container {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  @media (max-width: 768px) {
+    .app-container {
+      padding-left: max(10px, env(safe-area-inset-left));
+      padding-right: max(10px, env(safe-area-inset-right));
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .app-container {
+      padding-left: max(8px, env(safe-area-inset-left));
+      padding-right: max(8px, env(safe-area-inset-right));
+      padding-top: max(8px, env(safe-area-inset-top));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* Touch-friendly button sizing */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Improve performance on mobile */
+.video-section,
+.controls-section {
+  will-change: transform;
+  transform: translateZ(0);
 }

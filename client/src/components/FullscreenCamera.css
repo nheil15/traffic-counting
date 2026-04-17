@@ -10,6 +10,11 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Support for notched devices */
+  padding-top: max(0px, env(safe-area-inset-top));
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
 }
 
 .camera-video {
@@ -22,8 +27,8 @@
 /* Vehicle Count Overlay - Top Left SMALL (CCTV Style) */
 .count-overlay {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: max(15px, env(safe-area-inset-top));
+  left: max(15px, env(safe-area-inset-left));
   z-index: 10;
   backdrop-filter: blur(8px);
   background: rgba(0, 0, 0, 0.8);
@@ -32,6 +37,9 @@
   border: 2px solid rgba(102, 126, 234, 0.6);
   min-width: 120px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .count-main {
@@ -127,8 +135,8 @@
 /* Top Right Record Button Only */
 .record-button-top-right {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: max(15px, env(safe-area-inset-top));
+  right: max(15px, env(safe-area-inset-right));
   z-index: 10;
   width: 45px;
   height: 45px;
@@ -143,6 +151,12 @@
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   padding: 0;
+  /* Ensure minimum touch target size */
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .record-button-top-right:hover {
@@ -270,8 +284,8 @@
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
   .count-overlay {
-    top: 10px;
-    left: 10px;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
     padding: 8px 10px;
     min-width: 100px;
     border-radius: 6px;
@@ -308,10 +322,12 @@
   }
 
   .record-button-top-right {
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .record-button-top-right .record-dot {
@@ -354,11 +370,12 @@
 /* Extra Small Mobile Devices (< 480px) */
 @media (max-width: 480px) {
   .count-overlay {
-    top: 8px;
-    left: 8px;
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
     padding: 6px 8px;
     min-width: 85px;
     border-radius: 5px;
+    font-size: 14px;
   }
 
   .count-label {
@@ -408,12 +425,14 @@
   }
 
   .record-button-top-right {
-    top: 8px;
-    right: 8px;
-    width: 36px;
-    height: 36px;
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
     border: 1.5px solid rgba(102, 126, 234, 0.6);
     border-radius: 50%;
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .record-button-top-right .record-dot {
@@ -460,8 +479,8 @@
 /* Very Small Mobile Devices (< 360px) */
 @media (max-width: 360px) {
   .count-overlay {
-    top: 6px;
-    left: 6px;
+    top: max(6px, env(safe-area-inset-top));
+    left: max(6px, env(safe-area-inset-left));
     padding: 5px 6px;
     min-width: 75px;
     border-radius: 4px;
@@ -504,11 +523,13 @@
   }
 
   .record-button-top-right {
-    top: 6px;
-    right: 6px;
-    width: 32px;
-    height: 32px;
+    top: max(6px, env(safe-area-inset-top));
+    right: max(6px, env(safe-area-inset-right));
+    width: 40px;
+    height: 40px;
     border: 1px solid rgba(102, 126, 234, 0.6);
+    min-height: 40px;
+    min-width: 40px;
     border-radius: 50%;
   }
 
@@ -986,5 +1007,134 @@
     right: 10px;
     padding: 6px 10px;
     font-size: 9px;
+  }
+}
+
+/* Landscape Orientation - Safe Area Support */
+@media (max-height: 500px) and (orientation: landscape) {
+  .count-overlay {
+    top: max(5px, env(safe-area-inset-top));
+    left: max(5px, env(safe-area-inset-left));
+    padding: 5px 8px;
+    min-width: 90px;
+  }
+
+  .count-label {
+    font-size: 7px;
+    margin-bottom: 1px;
+  }
+
+  .count-number {
+    font-size: 18px;
+  }
+
+  .vehicle-breakdown {
+    gap: 1px;
+    padding-top: 2px;
+  }
+
+  .breakdown-row {
+    font-size: 7px;
+  }
+
+  .record-button-top-right {
+    top: max(5px, env(safe-area-inset-top));
+    right: max(5px, env(safe-area-inset-right));
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .permission-content {
+    padding: 25px 20px;
+  }
+
+  .permission-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .permission-content p {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+}
+
+/* High DPI Mobile Phones (Retina/AMOLED) */
+@media (min-device-pixel-ratio: 2) and (max-width: 480px) {
+  .count-overlay {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  }
+
+  .record-button-top-right {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  }
+
+  .permission-content {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .record-button-top-right {
+    /* Remove hover effects on touch devices */
+    transition: none;
+  }
+
+  .record-button-top-right:active {
+    transform: scale(0.95);
+  }
+
+  .permission-content {
+    /* Better readability on mobile */
+    font-size: 16px;
+  }
+}
+
+/* iPhone Notch Support */
+@supports (padding: max(0px)) {
+  .fullscreen-camera {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  .count-overlay {
+    top: max(15px, calc(env(safe-area-inset-top) + 5px));
+    left: max(15px, calc(env(safe-area-inset-left) + 5px));
+  }
+
+  .record-button-top-right {
+    top: max(15px, calc(env(safe-area-inset-top) + 5px));
+    right: max(15px, calc(env(safe-area-inset-right) + 5px));
+  }
+}
+
+/* Foldable Device Support */
+@media (screen-spanning: single-fold-vertical) {
+  .count-overlay {
+    left: max(15px, env(viewport-segment-left 0 0) + 10px);
+  }
+
+  .record-button-top-right {
+    right: max(15px, calc(100vw - env(viewport-segment-right 0 0) + 10px));
+  }
+}
+
+/* Prevent pinch zoom on iOS */
+.fullscreen-camera {
+  touch-action: manipulation;
+}
+
+/* Improve text rendering on mobile */
+@media (max-width: 768px) {
+  .count-label,
+  .count-number,
+  .breakdown-row {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
