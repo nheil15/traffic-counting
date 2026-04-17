@@ -16,11 +16,20 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
 
   // Request camera permission and access real camera
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning) {
+      console.log('ℹ️ Waiting for isRunning to be true, current:', isRunning);
+      return;
+    }
 
     const startCamera = async () => {
       try {
-        console.log('Requesting camera permission...');
+        console.log('🎥 Requesting camera permission...');
+        console.log('📱 Browser:', navigator.userAgent);
+        
+        // Check if getUserMedia is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera API not supported in this browser');
+        }
         
         // Request camera with explicit permission
         const stream = await navigator.mediaDevices.getUserMedia({

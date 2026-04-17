@@ -34,9 +34,11 @@ function App() {
   // Memoized handleStart function
   const handleStart = useCallback(async () => {
     try {
-      await axios.post(`${API_BASE}/camera/start`, {
+      console.log('🚀 Starting camera with API call:', `${API_BASE}/camera/start`);
+      const response = await axios.post(`${API_BASE}/camera/start`, {
         source: 0
       });
+      console.log('✅ Camera start response:', response.data);
       setIsRunning(true);
       setCounts({
         total: 0,
@@ -47,7 +49,11 @@ function App() {
         tricycle: 0
       });
     } catch (err) {
-      console.error('Failed to start camera:', err.message);
+      console.error('❌ Failed to start camera:', err.message);
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+        console.error('Response status:', err.response.status);
+      }
     }
   }, [API_BASE]);
 
