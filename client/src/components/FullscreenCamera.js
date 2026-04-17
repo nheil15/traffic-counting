@@ -89,7 +89,7 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
               ? '/api/camera/process-detections'
               : 'http://localhost:5000/api/camera/process-detections';
             
-            const response = await axios.post(backendUrl, {
+            await axios.post(backendUrl, {
               frameData: null,
               detections: detections
             });
