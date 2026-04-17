@@ -90,12 +90,24 @@ class VehicleTracker {
 
     if (vehicleBottom >= this.countingLineY && !this.countedIds.has(vehicleId)) {
       const className = vehicle.class;
-      this.counts.total += 1;
+      // Increment specific class count
       if (className in this.counts) {
         this.counts[className] += 1;
       }
+      // Total is ALWAYS the sum of all vehicle types
+      this._updateTotal();
       this.countedIds.add(vehicleId);
     }
+  }
+
+  _updateTotal() {
+    // Calculate total as sum of all vehicle types
+    this.counts.total = 
+      this.counts.car + 
+      this.counts.truck + 
+      this.counts.bus + 
+      this.counts.motorcycle + 
+      this.counts.tricycle;
   }
 
   setCountingLine(y) {
