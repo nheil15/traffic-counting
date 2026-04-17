@@ -29,6 +29,17 @@ ENV/
 env/
 .venv
 
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+client/node_modules/
+client/npm-debug.log
+client/package-lock.json
+server/node_modules/
+server/npm-debug.log
+server/package-lock.json
+
 # IDE
 .vscode/
 .idea/
