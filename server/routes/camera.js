@@ -82,11 +82,18 @@ module.exports = (io) => {
     try {
       const { frameData, detections } = req.body;
       
+      // Auto-start camera if not already running
+      if (!cameraService.isRunning) {
+        console.log('📹 Auto-starting camera on first detection request...');
+        await cameraService.start(0);
+        startCountPolling();
+      }
+      
       // Process detections and update vehicle tracking
       const result = cameraService.processFrameDetections(frameData, detections);
       
       if (!result) {
-        return res.status(400).json({ error: 'Camera not running' });
+        return res.status(400).json({ error: 'Failed to process detections' });
       }
 
       // Broadcast updated counts to all connected clients

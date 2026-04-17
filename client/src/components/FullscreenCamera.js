@@ -83,19 +83,25 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
           // Run detection
           const detections = await detectObjects(videoRef.current);
 
-          if (detections.length > 0) {
-            // Send detections to backend for tracking and counting
-            try {
-              const backendUrl = process.env.NODE_ENV === 'production' 
-                ? '/api/camera/process-detections'
-                : 'http://localhost:5000/api/camera/process-detections';
-              
-              await axios.post(backendUrl, {
-                frameData: null, // Could send base64 if needed
-                detections: detections
-              });
-            } catch (err) {
-              console.debug('Detection send error:', err.message);
+          // Send detections to backend (even if empty - backend needs to track via WebSocket polling)
+          try {
+            const backendUrl = process.env.NODE_ENV === 'production' 
+              ? '/api/camera/process-detections'
+              : 'http://localhost:5000/api/camera/process-detections';
+            
+            const response = await axios.post(backendUrl, {
+              frameData: null,
+              detections: detections
+            });
+            
+            // Log successful detections
+            if (detections.length > 0) {
+              console.debug(`[*] Sent ${detections.length} detections to backend`);
+            }
+          } catch (err) {
+            // Only log errors, don't spam console with every failed request
+            if (err.response?.status !== 400) {
+              console.error('Detection API error:', err.message);
             }
           }
         }

@@ -74,7 +74,7 @@ export const useTensorFlowDetection = () => {
     if (!modelRef.current) return [];
 
     try {
-      const predictions = await modelRef.current.estimateObjects(videoElement);
+      const predictions = await modelRef.current.detect(videoElement);
 
       // Filter for vehicle-like objects
       const vehicleClasses = ['car', 'truck', 'bus', 'motorcycle', 'bicycle', 'person'];

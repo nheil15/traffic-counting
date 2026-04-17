@@ -93,12 +93,10 @@ function App() {
     fetchStatus();
   }, [fetchStatus]);
 
-  // Auto-start camera on load
+  // Auto-start camera on load (one time only)
   useEffect(() => {
-    if (!isRunning) {
-      handleStart();
-    }
-  }, [isRunning, handleStart]);
+    handleStart();
+  }, [handleStart]);
 
   return (
     <div className="app">
