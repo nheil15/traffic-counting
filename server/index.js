@@ -13,6 +13,7 @@ const healthRouter = require('./routes/health');
 const cameraRouter = require('./routes/camera');
 const countsRouter = require('./routes/counts');
 const configRouter = require('./routes/config');
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
 // Initialize express app
 const app = express();
@@ -68,7 +69,14 @@ const isOriginAllowed = (origin, req) => {
   return false;
 };
 
-const io = socketIO(server, {
+const noopIo = {
+  emit: () => {},
+  on: () => {},
+  to: () => noopIo,
+  in: () => noopIo
+};
+
+const io = isVercel ? noopIo : socketIO(server, {
   cors: {
     origin: function(origin, callback) {
       // For Socket.io, we need to be more permissive in production
@@ -163,23 +171,25 @@ app.get('/api/video', (req, res) => {
 });
 
 // WebSocket events
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+if (!isVercel) {
+  io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
 
-  socket.on('start-monitoring', (data) => {
-    console.log('Start monitoring:', data);
-    io.emit('monitoring-started', { timestamp: new Date() });
-  });
+    socket.on('start-monitoring', (data) => {
+      console.log('Start monitoring:', data);
+      io.emit('monitoring-started', { timestamp: new Date() });
+    });
 
-  socket.on('stop-monitoring', () => {
-    console.log('Stop monitoring');
-    io.emit('monitoring-stopped', { timestamp: new Date() });
+    socket.on('stop-monitoring', () => {
+      console.log('Stop monitoring');
+      io.emit('monitoring-stopped', { timestamp: new Date() });
+    });
   });
-});
+}
 
 // React catch-all route (SPA routing)
 app.get('*', (req, res) => {

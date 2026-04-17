@@ -17,44 +17,17 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
   // Request camera permission and access real camera
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    console.log('🎬 [FullscreenCamera] Permission useEffect triggered');
-    console.log('🎬 [FullscreenCamera] isRunning:', isRunning);
-    console.log('🎬 [FullscreenCamera] permissionStatus:', permissionStatus);
-    
     if (!isRunning) {
-      console.log('⏸️ [FullscreenCamera] Waiting for isRunning to be true, current:', isRunning);
       return;
     }
-
-    console.log('✅ [FullscreenCamera] isRunning is true, proceeding to startCamera()');
-    console.log('🎬 [FullscreenCamera] Permission useEffect triggered');
-    console.log('🎬 [FullscreenCamera] isRunning:', isRunning);
-    console.log('🎬 [FullscreenCamera] permissionStatus:', permissionStatus);
-    
-    if (!isRunning) {
-      console.log('⏸️ [FullscreenCamera] Waiting for isRunning to be true, current:', isRunning);
-      return;
-    }
-
-    console.log('✅ [FullscreenCamera] isRunning is true, proceeding to startCamera()');
 
     const startCamera = async () => {
       try {
-        console.log('🎥 [startCamera] Requesting camera permission...');
-        console.log('📱 [startCamera] Browser:', navigator.userAgent);
-        console.log('🔒 [startCamera] Current protocol:', window.location.protocol);
-        console.log('🌐 [startCamera] Hostname:', window.location.hostname);
-        
-        // Check if getUserMedia is supported
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           const msg = 'Camera API not supported in this browser';
-          console.error('❌ [startCamera] ' + msg);
           throw new Error(msg);
         }
-        
-        console.log('✅ [startCamera] Camera API is supported');
-        
-        // Request camera with explicit permission
+
         const constraints = {
           video: {
             width: { ideal: 1920 },
@@ -63,24 +36,16 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
           },
           audio: false
         };
-        
-        console.log('📋 [startCamera] Requesting with constraints:', constraints);
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-        console.log('✓ [startCamera] Camera permission granted');
-        console.log('✓ [startCamera] Real camera stream started');
-        
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           streamRef.current = stream;
+          videoRef.current.play().catch(() => {});
           setPermissionStatus('granted');
         }
         setCameraError(null);
       } catch (err) {
-        console.error('✗ [startCamera] Camera permission error:', err);
-        console.error('Error name:', err.name);
-        console.error('Error message:', err.message);
-        
         let errorMsg = '';
         if (err.name === 'NotAllowedError') {
           errorMsg = 'Camera permission denied. Please allow camera access in browser settings.';
@@ -98,7 +63,6 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
         
         setCameraError(errorMsg);
         setPermissionStatus('denied');
-        console.error(`Camera Error [${err.name}]: ${errorMsg}`);
       }
     };
 
@@ -107,7 +71,6 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => {
-          console.log('Stopping camera track...');
           track.stop();
         });
       }
