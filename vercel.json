@@ -1,8 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "framework": "express",
-  "installCommand": "npm install && cd client && npm install && cd ..",
-  "outputDirectory": "client/build"
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server/index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
 
