@@ -25,21 +25,30 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
       try {
         console.log('🎥 Requesting camera permission...');
         console.log('📱 Browser:', navigator.userAgent);
+        console.log('🔒 Current protocol:', window.location.protocol);
+        console.log('🌐 Hostname:', window.location.hostname);
         
         // Check if getUserMedia is supported
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('Camera API not supported in this browser');
+          const msg = 'Camera API not supported in this browser';
+          console.error('❌ ' + msg);
+          throw new Error(msg);
         }
         
+        console.log('✅ Camera API is supported');
+        
         // Request camera with explicit permission
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const constraints = {
           video: {
             width: { ideal: 1920 },
             height: { ideal: 1080 },
             facingMode: 'environment'
           },
           audio: false
-        });
+        };
+        
+        console.log('📋 Requesting with constraints:', constraints);
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
         console.log('✓ Camera permission granted');
         console.log('✓ Real camera stream started');
@@ -52,6 +61,8 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
         setCameraError(null);
       } catch (err) {
         console.error('✗ Camera permission error:', err);
+        console.error('Error name:', err.name);
+        console.error('Error message:', err.message);
         
         let errorMsg = '';
         if (err.name === 'NotAllowedError') {
@@ -60,8 +71,12 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
           errorMsg = 'No camera found. Please connect a camera device.';
         } else if (err.name === 'NotReadableError') {
           errorMsg = 'Camera is in use by another application.';
+        } else if (err.name === 'SecurityError') {
+          errorMsg = 'Camera access blocked for security reasons. This usually requires HTTPS.';
+        } else if (err.name === 'TypeError') {
+          errorMsg = 'Camera permission request failed. Try refreshing the page.';
         } else {
-          errorMsg = `Camera error: ${err.message}`;
+          errorMsg = `Camera error [${err.name}]: ${err.message}`;
         }
         
         setCameraError(errorMsg);

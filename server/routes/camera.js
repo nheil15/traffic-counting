@@ -40,7 +40,11 @@ module.exports = (io) => {
   router.post('/start', async (req, res) => {
     try {
       const source = req.body.source || 0;
+      console.log(`📷 Camera start request - source: ${source}`);
+      
       const result = await cameraService.start(source);
+      
+      console.log(`✅ Camera started successfully:`, result);
       
       // Start real-time polling from Python backend
       startCountPolling();
@@ -48,7 +52,15 @@ module.exports = (io) => {
       io.emit('camera-started', result);
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error(`❌ Camera start error:`, error);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack:`, error.stack);
+      
+      res.status(500).json({ 
+        error: error.message,
+        errorType: error.name,
+        timestamp: new Date().toISOString()
+      });
     }
   });
 
