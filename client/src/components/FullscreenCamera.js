@@ -258,16 +258,16 @@ function FullscreenCamera({ isRunning, onClose }) {
               <span className="type-count">{counts.bus}</span>
             </div>
             <div className="breakdown-row">
-              <span className="type-label">Motor:</span>
-              <span className="type-count">{counts.motorcycle}</span>
-            </div>
-            <div className="breakdown-row">
-              <span className="type-label">Bicycle:</span>
+              <span className="type-label">Bikes:</span>
               <span className="type-count">{counts.bicycle}</span>
             </div>
             <div className="breakdown-row">
-              <span className="type-label">Tricycle:</span>
+              <span className="type-label">Trike:</span>
               <span className="type-count">{counts.tricycle}</span>
+            </div>
+            <div className="breakdown-row">
+              <span className="type-label">Motor:</span>
+              <span className="type-count">{counts.motorcycle}</span>
             </div>
           </div>
         </div>

@@ -178,6 +178,7 @@ class VehicleTracker {
       this.counts.truck +
       this.counts.bus +
       this.counts.motorcycle +
+      this.counts.bicycle +
       this.counts.tricycle;
   }
 
@@ -194,7 +195,7 @@ class VehicleTracker {
   }
 
   resetCounts() {
-    this.counts = { total: 0, car: 0, truck: 0, bus: 0, motorcycle: 0, tricycle: 0 };
+    this.counts = { total: 0, car: 0, truck: 0, bus: 0, motorcycle: 0, bicycle: 0, tricycle: 0 };
     this.countedIds = new Set();
     this.vehicles.clear();
     this.nextId = 1;
@@ -212,6 +213,7 @@ export const useVehicleTracking = () => {
     truck: 0,
     bus: 0,
     motorcycle: 0,
+    bicycle: 0,
     tricycle: 0
   });
   const [trackedVehicles, setTrackedVehicles] = useState({});
