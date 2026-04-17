@@ -46,7 +46,6 @@ class VehicleTracker {
       const detCenter = this.getCenter(bbox);
       let bestMatch = null;
       let bestDistance = this.maxDistance;
-      let bestMatchClass = null;
 
       for (const [vehicleId, vehicleInfo] of this.vehicles) {
         if (matched.has(vehicleId)) continue;
@@ -62,7 +61,6 @@ class VehicleTracker {
         if (effectiveDistance < bestDistance) {
           bestDistance = effectiveDistance;
           bestMatch = vehicleId;
-          bestMatchClass = vehicleInfo.class;
         }
       }
 

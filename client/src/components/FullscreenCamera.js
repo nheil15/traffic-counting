@@ -20,6 +20,11 @@ function FullscreenCamera({ isRunning, onClose }) {
   // Canvas overlay for drawing bounding boxes
   const overlayCanvasRef = useRef(null);
 
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+
   // Request camera permission and access real camera
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -210,6 +215,53 @@ function FullscreenCamera({ isRunning, onClose }) {
     }
   }, [isRunning, trackedVehicles]);
 
+  // Recording functionality
+  const startRecording = () => {
+    if (!overlayCanvasRef.current) return;
+    
+    recordedChunksRef.current = [];
+    const canvas = overlayCanvasRef.current;
+    const stream = canvas.captureStream(30); // 30 FPS
+    
+    const mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'video/webm;codecs=vp9'
+    });
+    
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunksRef.current.push(event.data);
+      }
+    };
+    
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunksRef.current, {
+        type: 'video/webm'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `traffic-recording-${new Date().toISOString().replace(/[:.]/g, '-')}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    };
+    
+    mediaRecorder.start();
+    mediaRecorderRef.current = mediaRecorder;
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
   return (
     <div className="fullscreen-camera">
       {/* Real camera feed */}
@@ -278,6 +330,18 @@ function FullscreenCamera({ isRunning, onClose }) {
         <div className={`status-dot ${permissionStatus === 'granted' ? 'running' : 'waiting'}`}></div>
         <span>{permissionStatus === 'granted' ? 'LIVE' : 'REQUESTING'}</span>
       </div>
+
+      {/* Recording button - Bottom Right below status */}
+      {permissionStatus === 'granted' && (
+        <button 
+          onClick={isRecording ? stopRecording : startRecording}
+          className={`record-button ${isRecording ? 'recording' : ''}`}
+          title={isRecording ? 'Stop recording' : 'Start recording'}
+        >
+          <span className={`record-dot ${isRecording ? 'active' : ''}`}></span>
+          {isRecording ? 'STOP REC' : 'REC'}
+        </button>
+      )}
 
       {/* Permission message */}
       {permissionStatus === 'requesting' && (
