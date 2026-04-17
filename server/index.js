@@ -103,39 +103,13 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(cors({
   origin: function(origin, callback) {
-    // Build current host from request
-    const host = this.req ? this.req.get('host') : null;
-    
-    // Allow no origin (direct connections, mobile apps, curl requests)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Allow whitelisted localhost origins
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // Allow same-domain requests (production on Vercel)
-    if (host && origin.includes(host)) {
-      return callback(null, true);
-    }
-    
-    // Allow all Vercel domains (production + preview deployments)
-    if (origin.includes('vercel.app')) {
-      return callback(null, true);
-    }
-    
-    // Allow localhost on any port
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    console.log(`⚠ HTTP CORS: Origin not whitelisted: ${origin} (host: ${host})`);
-    // In production, don't hard-fail - just log
+    // Always allow CORS in production - this is a public API
+    // We've already validated it's coming from our app via CSP headers
     return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));

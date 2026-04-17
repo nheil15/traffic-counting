@@ -16,6 +16,17 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
 
   // Request camera permission and access real camera
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    console.log('🎬 [FullscreenCamera] Permission useEffect triggered');
+    console.log('🎬 [FullscreenCamera] isRunning:', isRunning);
+    console.log('🎬 [FullscreenCamera] permissionStatus:', permissionStatus);
+    
+    if (!isRunning) {
+      console.log('⏸️ [FullscreenCamera] Waiting for isRunning to be true, current:', isRunning);
+      return;
+    }
+
+    console.log('✅ [FullscreenCamera] isRunning is true, proceeding to startCamera()');
     console.log('🎬 [FullscreenCamera] Permission useEffect triggered');
     console.log('🎬 [FullscreenCamera] isRunning:', isRunning);
     console.log('🎬 [FullscreenCamera] permissionStatus:', permissionStatus);
