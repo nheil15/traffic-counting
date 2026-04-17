@@ -1,0 +1,40 @@
+{
+  "name": "traffic-counting-client",
+  "version": "1.0.0",
+  "description": "Traffic Counting Web Dashboard",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "axios": "^1.6.2",
+    "socket.io-client": "^4.7.2",
+    "recharts": "^2.10.0",
+    "lucide-react": "^0.294.0",
+    "@tensorflow/tfjs": "^4.10.0",
+    "@tensorflow-models/coco-ssd": "^2.2.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
