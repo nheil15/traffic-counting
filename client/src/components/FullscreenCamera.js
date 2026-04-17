@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import useTensorFlowDetection from '../hooks/useTensorFlowDetection';
+import useVehicleTracking from '../hooks/useVehicleTracking';
 import './FullscreenCamera.css';
 
-function FullscreenCamera({ isRunning, counts, onClose }) {
+function FullscreenCamera({ isRunning, onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [cameraError, setCameraError] = useState(null);
@@ -13,6 +13,9 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
 
   // Load TensorFlow model
   const { modelLoaded, error: modelError, detectObjects } = useTensorFlowDetection();
+  
+  // Client-side vehicle tracking
+  const { processDetections, resetCounts, counts } = useVehicleTracking();
 
   // Request camera permission and access real camera
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,26 +92,9 @@ function FullscreenCamera({ isRunning, counts, onClose }) {
           // Run detection
           const detections = await detectObjects(videoRef.current);
 
-          // Send detections to backend (even if empty - backend needs to track via WebSocket polling)
-          try {
-            const backendUrl = process.env.NODE_ENV === 'production' 
-              ? '/api/camera/process-detections'
-              : 'http://localhost:5000/api/camera/process-detections';
-            
-            await axios.post(backendUrl, {
-              frameData: null,
-              detections: detections
-            });
-            
-            // Log successful detections
-            if (detections.length > 0) {
-              console.debug(`[*] Sent ${detections.length} detections to backend`);
-            }
-          } catch (err) {
-            // Only log errors, don't spam console with every failed request
-            if (err.response?.status !== 400) {
-              console.error('Detection API error:', err.message);
-            }
+          // Process detections locally in browser
+          if (detections.length > 0) {
+            processDetections(detections);
           }
         }
       } catch (err) {
