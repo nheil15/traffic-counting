@@ -1,8 +1,30 @@
 {
   "version": 2,
-  "buildCommand": "npm install && cd client && npm install && npm run build && cd ..",
-  "framework": "express",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install"
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["client/build/**", "server/**", ".env*"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.js"
+    },
+    {
+      "src": "/socket.io(.*)",
+      "dest": "/server/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server/index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
 
