@@ -76,18 +76,18 @@ export const useTensorFlowDetection = () => {
     try {
       const predictions = await modelRef.current.detect(videoElement);
 
-      // Filter for vehicle-like objects
-      const vehicleClasses = ['car', 'truck', 'bus', 'motorcycle', 'bicycle', 'person'];
-      const vehicleDetections = predictions.filter(pred =>
-        vehicleClasses.includes(pred.class) && pred.score > 0.4
-      );
-
-      // Convert to format expected by backend
-      const detections = vehicleDetections.map(pred => ({
-        bbox: pred.bbox, // [x, y, width, height]
-        class: pred.class === 'bicycle' ? 'tricycle' : pred.class,
-        confidence: pred.score
-      }));
+      // Define vehicle classes for counting
+      const vehicleClasses = ['car', 'truck', 'bus', 'motorcycle', 'bicycle'];
+      
+      // Convert ALL detections to standard format (not just vehicles)
+      const detections = predictions
+        .filter(pred => pred.score > 0.4) // Keep confidence threshold
+        .map(pred => ({
+          bbox: pred.bbox, // [x, y, width, height]
+          class: pred.class === 'bicycle' ? 'tricycle' : pred.class,
+          confidence: pred.score,
+          isVehicle: vehicleClasses.includes(pred.class) // Mark if it's a vehicle for counting
+        }));
 
       return detections;
     } catch (err) {

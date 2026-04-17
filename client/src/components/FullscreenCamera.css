@@ -549,6 +549,12 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* Bounding Box Overlay Canvas */
+.bounding-box-overlay {
+  pointer-events: none;
+  z-index: 5;
+}
+
 /* Responsive - Mobile */
 @media (max-width: 768px) {
   .count-overlay {

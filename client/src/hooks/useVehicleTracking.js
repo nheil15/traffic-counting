@@ -88,12 +88,14 @@ class VehicleTracker {
     const [x, y, w, h] = vehicle.bbox;
     const vehicleBottom = y + h;
 
+    // Only count if it's a vehicle and crosses the counting line
     if (vehicleBottom >= this.countingLineY && !this.countedIds.has(vehicleId)) {
       const className = vehicle.class;
+      // Only increment count if it's a tracked vehicle type (not people, animals, etc)
       if (className in this.counts) {
         this.counts[className] += 1;
+        this._updateTotal();
       }
-      this._updateTotal();
       this.countedIds.add(vehicleId);
     }
   }
@@ -137,6 +139,7 @@ export const useVehicleTracking = () => {
     motorcycle: 0,
     tricycle: 0
   });
+  const [trackedVehicles, setTrackedVehicles] = useState({});
 
   const processDetections = useCallback((detections) => {
     // Convert detections to tracker format
@@ -152,6 +155,10 @@ export const useVehicleTracking = () => {
     // Update state with new counts
     const newCounts = trackerRef.current.getCounts();
     setCounts(newCounts);
+
+    // Update tracked vehicles for drawing bounding boxes
+    const vehicles = trackerRef.current.getVehicles();
+    setTrackedVehicles(vehicles);
 
     return newCounts;
   }, []);
@@ -169,7 +176,8 @@ export const useVehicleTracking = () => {
     processDetections,
     resetCounts,
     setCountingLine,
-    counts
+    counts,
+    trackedVehicles
   };
 };
 

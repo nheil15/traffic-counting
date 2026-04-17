@@ -15,7 +15,10 @@ function FullscreenCamera({ isRunning, onClose }) {
   const { modelLoaded, error: modelError, detectObjects } = useTensorFlowDetection();
   
   // Client-side vehicle tracking
-  const { processDetections, resetCounts, counts } = useVehicleTracking();
+  const { processDetections, resetCounts, counts, trackedVehicles } = useVehicleTracking();
+
+  // Canvas overlay for drawing bounding boxes
+  const overlayCanvasRef = useRef(null);
 
   // Request camera permission and access real camera
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,6 +137,71 @@ function FullscreenCamera({ isRunning, onClose }) {
     };
   }, [isRunning]);
 
+  // Draw bounding boxes overlay
+  useEffect(() => {
+    if (!isRunning || !videoRef.current || !overlayCanvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = overlayCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    const drawBoxes = () => {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw bounding boxes for tracked vehicles
+        Object.entries(trackedVehicles).forEach(([vehicleId, vehicle]) => {
+          const [x, y, w, h] = vehicle.bbox;
+          
+          // Choose color based on vehicle type
+          const colors = {
+            car: '#00FF00',
+            truck: '#FF6600',
+            bus: '#FF00FF',
+            motorcycle: '#00FFFF',
+            tricycle: '#FFFF00',
+            person: '#FF0099',      // Non-vehicle objects (people)
+            dog: '#00FFAA',
+            cat: '#AA00FF',
+            bicycle: '#FFAA00'
+          };
+
+          const boxColor = colors[vehicle.class] || '#888888'; // Default gray for unknown objects
+          const lineWidth = 3;
+
+          // Draw bounding box
+          ctx.strokeStyle = boxColor;
+          ctx.lineWidth = lineWidth;
+          ctx.strokeRect(x, y, w, h);
+
+          // Draw vehicle ID and class label
+          const label = `ID:${vehicleId} ${vehicle.class.toUpperCase()}`;
+          const fontSize = 14;
+          ctx.font = `bold ${fontSize}px Arial`;
+          ctx.fillStyle = boxColor;
+          ctx.fillRect(x, y - fontSize - 8, ctx.measureText(label).width + 10, fontSize + 8);
+          
+          ctx.fillStyle = '#000000';
+          ctx.fillText(label, x + 5, y - 5);
+        });
+      }
+      requestAnimationFrame(drawBoxes);
+    };
+
+    video.onloadedmetadata = () => {
+      drawBoxes();
+    };
+
+    // Start drawing if video is already loaded
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      drawBoxes();
+    }
+  }, [isRunning, trackedVehicles]);
+
   return (
     <div className="fullscreen-camera">
       {/* Real camera feed */}
@@ -143,6 +211,19 @@ function FullscreenCamera({ isRunning, onClose }) {
         playsInline
         muted
         className="camera-video"
+      />
+
+      {/* Bounding box overlay canvas */}
+      <canvas 
+        ref={overlayCanvasRef} 
+        className="bounding-box-overlay"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%'
+        }}
       />
 
       {/* Hidden canvas for processing */}
