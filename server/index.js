@@ -51,18 +51,25 @@ const io = socketIO(server, {
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://storage.googleapis.com", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'", "https://storage.googleapis.com", "wss:", "ws:"],
-      imgSrc: ["'self'", "data:", "https:"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"]
-    }
-  }
+  contentSecurityPolicy: false  // Disable default CSP - we'll set it manually
 }));
+
+// Set custom CSP headers BEFORE other middleware
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://cdn.jsdelivr.net; " +
+    "connect-src 'self' https://storage.googleapis.com wss: ws:; " +
+    "img-src 'self' data: https:; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "font-src 'self' data:; " +
+    "object-src 'none'; " +
+    "frame-ancestors 'none'"
+  );
+  next();
+});
+
 app.use(compression());
 app.use(morgan('dev'));
 app.use(cors({
