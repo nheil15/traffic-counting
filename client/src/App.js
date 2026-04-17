@@ -34,11 +34,12 @@ function App() {
   // Memoized handleStart function
   const handleStart = useCallback(async () => {
     try {
-      console.log('🚀 Starting camera with API call:', `${API_BASE}/camera/start`);
+      console.log('🚀 [handleStart] Starting camera with API call:', `${API_BASE}/camera/start`);
       const response = await axios.post(`${API_BASE}/camera/start`, {
         source: 0
       });
-      console.log('✅ Camera start response:', response.data);
+      console.log('✅ [handleStart] Camera start response:', response.data);
+      console.log('✅ [handleStart] Setting isRunning = true (from API response)');
       setIsRunning(true);
       setCounts({
         total: 0,
@@ -49,11 +50,23 @@ function App() {
         tricycle: 0
       });
     } catch (err) {
-      console.error('❌ Failed to start camera:', err.message);
+      console.error('❌ [handleStart] Failed to start camera via API:', err.message);
       if (err.response) {
-        console.error('Response data:', err.response.data);
-        console.error('Response status:', err.response.status);
+        console.error('❌ [handleStart] Response data:', err.response.data);
+        console.error('❌ [handleStart] Response status:', err.response.status);
       }
+      // FALLBACK: Even if backend fails, enable camera on frontend
+      console.log('⚠️ [handleStart] Backend unavailable, enabling camera directly on frontend...');
+      console.log('⚠️ [handleStart] Setting isRunning = true (FALLBACK)');
+      setIsRunning(true);
+      setCounts({
+        total: 0,
+        car: 0,
+        truck: 0,
+        bus: 0,
+        motorcycle: 0,
+        tricycle: 0
+      });
     }
   }, [API_BASE]);
 
@@ -101,6 +114,8 @@ function App() {
 
   // Auto-start camera on load (one time only)
   useEffect(() => {
+    console.log('🔄 [App] Auto-start effect triggered, calling handleStart()...');
+    console.log('🔄 [App] Current isRunning before handleStart():', isRunning);
     handleStart();
   }, [handleStart]);
 
